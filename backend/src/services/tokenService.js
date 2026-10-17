@@ -33,7 +33,7 @@ function verifyAccessToken(token) {
       throw new Error('wrong token type');
     }
     return payload;
-  } catch (err) {
+  } catch {
     throw new AuthError('Invalid or expired access token', 'INVALID_TOKEN');
   }
 }

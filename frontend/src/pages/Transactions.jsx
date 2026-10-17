@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '../utils/api';
 import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
@@ -9,7 +9,7 @@ const Transactions = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await api.get('/accounts/me/transactions', { params: { page, limit: 10 } });
@@ -18,11 +18,11 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     load();
-  }, [page]);
+  }, [load]);
 
   return (
     <div className="flex flex-col gap-8">

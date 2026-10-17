@@ -1,4 +1,3 @@
-import React from 'react';
 
 const NewsCard = ({ title, excerpt, source, date, image, link }) => (
   <article className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">

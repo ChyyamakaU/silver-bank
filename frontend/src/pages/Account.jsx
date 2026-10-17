@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import Card from '../components/Card';
@@ -11,16 +11,10 @@ const formatCurrency = (v) => {
 const Account = () => {
   const { account: ctxAccount } = useAuth();
   const [account, setAccount] = useState(ctxAccount);
-  const [loading, setLoading] = useState(false);
 
   const load = async () => {
-    setLoading(true);
-    try {
-      const { data } = await api.get('/accounts/me');
-      setAccount(data.data);
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await api.get('/accounts/me');
+    setAccount(data.data);
   };
 
   useEffect(() => {

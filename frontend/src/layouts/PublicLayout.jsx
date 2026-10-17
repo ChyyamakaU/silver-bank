@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Banknote, Menu, X } from 'lucide-react';
 import { useState } from 'react';

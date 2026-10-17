@@ -1,4 +1,3 @@
-import React from 'react';
 
 const styles = {
   COMPLETED: 'bg-success/10 text-success border border-success/20',

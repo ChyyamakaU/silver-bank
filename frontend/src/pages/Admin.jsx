@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -9,24 +9,18 @@ const Admin = () => {
   const [customers, setCustomers] = useState([]);
   const [audit, setAudit] = useState([]);
   const [recon, setRecon] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const load = async () => {
-    setLoading(true);
-    try {
-      const [s, c, a, r] = await Promise.all([
-        api.get('/admin/statistics'),
-        api.get('/admin/customers'),
-        api.get('/admin/audit-logs?limit=10'),
-        api.get('/admin/reconciliation'),
-      ]);
-      setStats(s.data.data);
-      setCustomers(c.data.data?.items || []);
-      setAudit(a.data.data?.items || []);
-      setRecon(r.data.data);
-    } finally {
-      setLoading(false);
-    }
+    const [s, c, a, r] = await Promise.all([
+      api.get('/admin/statistics'),
+      api.get('/admin/customers'),
+      api.get('/admin/audit-logs?limit=10'),
+      api.get('/admin/reconciliation'),
+    ]);
+    setStats(s.data.data);
+    setCustomers(c.data.data?.items || []);
+    setAudit(a.data.data?.items || []);
+    setRecon(r.data.data);
   };
 
   useEffect(() => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Banknote, Globe } from 'lucide-react';
 import NewsCard from '../components/NewsCard';

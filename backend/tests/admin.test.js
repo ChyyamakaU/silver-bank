@@ -76,7 +76,7 @@ afterAll(async () => {
 describe('Admin', () => {
   test('authorized admin can perform permitted actions', async () => {
     const admin = await createAdmin();
-    const cust = await createUser({ email: `c-${Date.now()}@t.com`, name: 'C', phoneSuffix: 1 });
+    await createUser({ email: `c-${Date.now()}@t.com`, name: 'C', phoneSuffix: 1 });
     const stats = await request(app).get('/api/admin/statistics').set('Authorization', `Bearer ${admin.token}`);
     expect(stats.status).toBe(200);
     expect(stats.body.data.customers).toBeGreaterThanOrEqual(1);

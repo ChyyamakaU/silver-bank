@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import api, { clearAccessToken, setAccessToken } from '../utils/api';
 
 const AuthContext = createContext(null);
@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.get('/auth/me');
       setUser(data.data?.user || null);
       setAccount(data.data?.account || null);
-    } catch (err) {
+    } catch {
       clearAccessToken();
       setUser(null);
       setAccount(null);
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.get('/accounts/me');
       setAccount(data?.data || null);
-    } catch (err) {
+    } catch {
       // ignore
     }
   };

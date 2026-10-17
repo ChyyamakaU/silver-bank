@@ -50,11 +50,6 @@ async function createUser({ email, name, phoneSuffix = 0, balance = '0' }) {
   return { ...res, token: login.accessToken, account: await models.BankAccount.findByPk(res.account.id) };
 }
 
-async function getToken(email) {
-  const login = await authService.login({ email, password: PASSWORD }, {});
-  return login.accessToken;
-}
-
 beforeEach(async () => {
   await models.sequelize.sync({ force: true });
 });

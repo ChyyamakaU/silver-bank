@@ -17,7 +17,7 @@ function assertMinorInteger(value, field = 'amount') {
   let big;
   try {
     big = BigInt(value);
-  } catch (err) {
+  } catch {
     throw new ValidationError(`Invalid ${field}`, { [field]: 'Must be an integer minor-unit amount' });
   }
   if (big < 0n) {

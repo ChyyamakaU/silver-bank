@@ -16,7 +16,7 @@ const { ValidationError } = require('../utils/errors');
 function assignValue(target, key, value) {
   try {
     target[key] = value;
-  } catch (err) {
+  } catch {
     Object.defineProperty(target, key, {
       value,
       writable: true,

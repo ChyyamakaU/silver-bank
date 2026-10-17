@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import Card from '../components/Card';
@@ -14,17 +14,12 @@ const formatCurrency = (v) => {
 const Dashboard = () => {
   const { user, account } = useAuth();
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
   const [copied, setCopied] = useState(false);
 
   const load = async () => {
-    try {
-      const { data } = await api.get('/accounts/dashboard');
-      setData(data.data);
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await api.get('/accounts/dashboard');
+    setData(data.data);
   };
 
   useEffect(() => {

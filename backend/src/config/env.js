@@ -92,7 +92,13 @@ function resolveSslCa() {
     try {
       return fs.readFileSync(resolved, 'utf8');
     } catch (err) {
-      throw new Error(`DB_SSL_CA_PATH could not be read (${resolved}): ${err.message}`);
+      throw new Error(
+        `DB_SSL_CA_PATH could not be read (${resolved}): ${err.message}. ` +
+          'Provide an existing file, use DB_SSL_CA (inline PEM or base64) instead, ' +
+          'or on Render add the cert as a Secret File and point DB_SSL_CA_PATH at ' +
+          '/etc/secrets/<filename>.',
+        { cause: err }
+      );
     }
   }
 

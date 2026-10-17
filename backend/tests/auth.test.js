@@ -3,9 +3,7 @@
 const app = require('../src/app');
 const request = require('supertest');
 const models = require('../src/models');
-const config = require('../src/config/env');
 const authService = require('../src/services/authService');
-const { toMinorUnits } = require('../src/utils/money');
 
 const PASSWORD = 'StrongP@ss1';
 
