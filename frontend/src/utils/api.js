@@ -22,11 +22,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const AUTH_PATHS = /\/auth\/(login|register|refresh|logout)$/;
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      const originalRequest = error.config;
+    const originalRequest = error.config;
+    const isAuthAttempt = originalRequest && AUTH_PATHS.test(originalRequest.url || '');
+
+    if (error.response?.status === 401 && originalRequest && !isAuthAttempt) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;
         try {
@@ -40,9 +44,8 @@ api.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
             return api(originalRequest);
           }
-        } catch (refreshError) {
+        } catch {
           clearAccessToken();
-          return Promise.reject(refreshError);
         }
       }
     }

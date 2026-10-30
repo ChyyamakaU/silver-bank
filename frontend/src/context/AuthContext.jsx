@@ -10,20 +10,26 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const loadProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { data } = await api.get('/auth/me');
-      setUser(data.data?.user || null);
-      setAccount(data.data?.account || null);
-    } catch {
-      clearAccessToken();
-      setUser(null);
-      setAccount(null);
-    } finally {
-      setLoading(false);
+  try {
+    setError(null);
+
+    const { data } = await api.post('/auth/refresh');
+
+    const token = data?.data?.accessToken;
+    if (token) {
+      setAccessToken(token);
     }
-  };
+
+    setUser(data.data?.user || null);
+    setAccount(data.data?.account || null);
+  } catch {
+    clearAccessToken();
+    setUser(null);
+    setAccount(null);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const login = async (credentials) => {
     const { data } = await api.post('/auth/login', credentials);

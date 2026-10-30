@@ -20,8 +20,14 @@ const sequelize = new Sequelize(config.db.name, config.db.user, config.db.passwo
     timestamps: true,
   },
   dialectOptions: config.db.ssl
-    ? { ssl: { require: true, rejectUnauthorized: false } }
-    : {},
+  ? {
+      ssl: {
+        require: true,
+        rejectUnauthorized: config.db.sslRejectUnauthorized,
+        ...(config.db.sslCa ? { ca: config.db.sslCa } : {}),
+      },
+    }
+  : {},
 });
 
 module.exports = sequelize;
