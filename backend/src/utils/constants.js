@@ -1,3 +1,4 @@
+
 'use strict';
 
 module.exports = Object.freeze({
@@ -17,12 +18,6 @@ module.exports = Object.freeze({
     CURRENT: 'CURRENT',
   }),
 
-  TRANSACTION_TYPE: Object.freeze({
-    TRANSFER: 'TRANSFER',
-    REVERSAL: 'REVERSAL',
-    ADJUSTMENT: 'ADJUSTMENT',
-    BONUS: 'BONUS',
-  }),
 
   TRANSACTION_STATUS: Object.freeze({
     PENDING: 'PENDING',
@@ -51,4 +46,13 @@ module.exports = Object.freeze({
     ACCOUNT_STATUS_CHANGED: 'ACCOUNT_STATUS_CHANGED',
     ADMIN_ACTION: 'ADMIN_ACTION',
   }),
+
+  TRANSACTION_TYPE: Object.freeze({
+    TRANSFER: 'TRANSFER',
+    REVERSAL: 'REVERSAL',
+    ADJUSTMENT: 'ADJUSTMENT',
+    BONUS: 'BONUS',
+    FUNDING: 'FUNDING',
+  }),
+
 });

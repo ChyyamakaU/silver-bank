@@ -1,5 +1,6 @@
 'use strict';
 
+const paystackService = require('../services/paystackService');
 const accountService = require('../services/accountService');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -50,4 +51,14 @@ function buildNotifications(account, recentTransactions) {
   return notifications;
 }
 
-module.exports = { getMe, getBalance, getTransactions, getDashboard };
+const initializeFunding = asyncHandler(async (req, res) => {
+  const data = await paystackService.initializeFunding(req.user, req.body);
+  res.status(200).json({ success: true, data });
+});
+
+const verifyFunding = asyncHandler(async (req, res) => {
+  const data = await paystackService.verifyFunding(req.user, req.params.reference);
+  res.status(200).json({ success: true, data });
+});
+
+module.exports = { getMe, getBalance, getTransactions, getDashboard, initializeFunding, verifyFunding };

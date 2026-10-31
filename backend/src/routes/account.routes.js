@@ -14,5 +14,6 @@ router.get('/dashboard', accountController.getDashboard);
 router.get('/me', accountController.getMe);
 router.get('/me/balance', accountController.getBalance);
 router.get('/me/transactions', validate(transactionQuerySchema, 'query'), accountController.getTransactions);
-
+router.post('/funding/initialize', accountController.initializeFunding);
+router.get('/funding/verify/:reference', accountController.verifyFunding);
 module.exports = router;

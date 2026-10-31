@@ -65,6 +65,11 @@ const schema = Joi.object({
   ADMIN_PASSWORD: Joi.string().min(8).default('Admin@Silver123'),
   ADMIN_NAME: Joi.string().default('Silver Bank Administrator'),
 
+  PAYSTACK_SECRET_KEY: Joi.string().required(),
+  PAYSTACK_BASE_URL: Joi.string()
+    .uri()
+    .default('https://api.paystack.co'),
+
   FRONTEND_URL: Joi.string().default('http://localhost:5173'),
 }).unknown(true);
 
@@ -94,9 +99,9 @@ function resolveSslCa() {
     } catch (err) {
       throw new Error(
         `DB_SSL_CA_PATH could not be read (${resolved}): ${err.message}. ` +
-          'Provide an existing file, use DB_SSL_CA (inline PEM or base64) instead, ' +
-          'or on Render add the cert as a Secret File and point DB_SSL_CA_PATH at ' +
-          '/etc/secrets/<filename>.',
+        'Provide an existing file, use DB_SSL_CA (inline PEM or base64) instead, ' +
+        'or on Render add the cert as a Secret File and point DB_SSL_CA_PATH at ' +
+        '/etc/secrets/<filename>.',
         { cause: err }
       );
     }
@@ -178,6 +183,11 @@ const config = {
     email: value.ADMIN_EMAIL,
     password: value.ADMIN_PASSWORD,
     name: value.ADMIN_NAME,
+  },
+
+  paystack: {
+    secretKey: value.PAYSTACK_SECRET_KEY,
+    baseUrl: value.PAYSTACK_BASE_URL,
   },
 
   frontendUrl: value.FRONTEND_URL,
