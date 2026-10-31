@@ -5,7 +5,7 @@ import api from '../utils/api';
 
 const PaymentVerify = () => {
   const [searchParams] = useSearchParams();
-  const { refreshAccount } = useAuth();
+  const { refreshAccount, loading, user } = useAuth();
 
   const reference =
     searchParams.get('reference') || searchParams.get('trxref');
@@ -14,11 +14,21 @@ const PaymentVerify = () => {
   const [message, setMessage] = useState('Verifying your payment...');
 
   useEffect(() => {
+    if (loading) return;
+
     if (!reference) {
       setStatus('failed');
       setMessage('Payment reference not found.');
       return;
     }
+
+    if (!user) {
+      setStatus('failed');
+      setMessage('Your session has expired. Please log in again.');
+      return;
+    }
+
+    let cancelled = false;
 
     const verify = async () => {
       try {
@@ -28,19 +38,27 @@ const PaymentVerify = () => {
 
         await refreshAccount();
 
-        setStatus('success');
-        setMessage('Your account has been funded successfully.');
+        if (!cancelled) {
+          setStatus('success');
+          setMessage('Your account has been funded successfully.');
+        }
       } catch (error) {
-        setStatus('failed');
-        setMessage(
-          error.response?.data?.message ||
-          'We could not verify your payment.'
-        );
+        if (!cancelled) {
+          setStatus('failed');
+          setMessage(
+            error.response?.data?.message ||
+              'We could not verify your payment.'
+          );
+        }
       }
     };
 
     verify();
-  }, [reference]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reference, loading, user]);
 
   return (
     <div className="mx-auto max-w-lg py-16 text-center">
@@ -48,8 +66,8 @@ const PaymentVerify = () => {
         {status === 'verifying'
           ? 'Verifying Payment'
           : status === 'success'
-          ? 'Payment Successful'
-          : 'Payment Verification Failed'}
+            ? 'Payment Successful'
+            : 'Payment Verification Failed'}
       </h1>
 
       <p className="mb-6 text-muted">{message}</p>
