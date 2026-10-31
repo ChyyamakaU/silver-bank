@@ -1,7 +1,8 @@
+
 'use strict';
 
 const { Op } = require('sequelize');
-const { BankAccount, Transaction, LedgerEntry } = require('../models');
+const { BankAccount, Transaction, LedgerEntry, User } = require('../models');
 const { generateAccountNumber, generateTransactionReference } = require('../utils/reference');
 const { NotFoundError, ForbiddenError } = require('../utils/errors');
 const { formatCurrency, formatMajor } = require('../utils/money');
@@ -41,8 +42,7 @@ async function createAccountForUser(user, { transaction, accountType = 'SAVINGS'
 
 /**
  * Credit an account by a positive amount (minor units) with a matching
- * ADJUSTMENT transaction and CREDIT ledger entry. Keeps the double-entry
- * invariant intact: sum(credits) - sum(debits) === ledgerBalance.
+ * ADJUSTMENT transaction and CREDIT ledger entry.
  */
 async function fundAccount(account, amountMinorUnits, { transaction, reference, narration, description, metadata } = {}) {
   const amount = BigInt(amountMinorUnits);
@@ -162,10 +162,12 @@ async function listTransactions(userId, options = {}) {
       { recipientAccountId: account.id },
     ],
   };
+
   if (type) where.type = type;
   if (status) where.status = status;
   if (direction === 'incoming') where.recipientAccountId = account.id;
   if (direction === 'outgoing') where.senderAccountId = account.id;
+
   if (from || to) {
     where.createdAt = {};
     if (from) where.createdAt[Op.gte] = new Date(from);
@@ -175,6 +177,7 @@ async function listTransactions(userId, options = {}) {
       where.createdAt[Op.lte] = end;
     }
   }
+
   if (search) {
     where.reference = { [Op.iLike]: `%${String(search).slice(0, 40)}%` };
   }
@@ -206,6 +209,7 @@ async function listTransactions(userId, options = {}) {
 function toTransactionDTO(tx, account) {
   const isDebit = tx.senderAccountId === account.id;
   const counterpartyAccount = isDebit ? tx.recipientAccount : tx.senderAccount;
+
   return {
     id: tx.id,
     reference: tx.reference,
@@ -228,11 +232,11 @@ function toTransactionDTO(tx, account) {
 }
 
 /**
- * Fetch a single transaction, but only if the authenticated customer owns one
- * of the accounts involved. Never trust an arbitrary transaction id.
+ * Fetch a single transaction only if the authenticated customer owns it.
  */
 async function getOwnedTransaction(user, reference) {
   const account = await requireAccountByUserId(user.id);
+
   const tx = await Transaction.findOne({
     where: {
       reference,
@@ -247,14 +251,63 @@ async function getOwnedTransaction(user, reference) {
       { association: 'recipientAccount', attributes: ['id', 'accountName', 'accountNumber'] },
     ],
   });
+
   if (!tx) {
     throw new NotFoundError('Transaction not found');
   }
+
   return { tx, account };
+}
+
+/**
+ * Return receipt details for a completed Paystack funding transaction.
+ * A customer can only retrieve a receipt for their own funding transaction.
+ */
+async function getFundingReceipt(user, reference) {
+  const { tx, account } = await getOwnedTransaction(user, reference);
+
+  if (
+    tx.type !== 'FUNDING' ||
+    tx.status !== 'COMPLETED' ||
+    tx.metadata?.provider !== 'PAYSTACK' ||
+    tx.recipientAccountId !== account.id ||
+    tx.initiatingUserId !== user.id
+  ) {
+    throw new NotFoundError('Funding receipt not found');
+  }
+
+  const customer = await User.findByPk(user.id, {
+    attributes: ['fullName', 'customerId'],
+  });
+
+  if (!customer) {
+    throw new NotFoundError('Customer not found');
+  }
+
+  return {
+    receiptNumber: `SB-RCP-${tx.reference}`,
+    customerName: customer.fullName,
+    customerId: customer.customerId,
+    accountName: account.accountName,
+    accountNumber: account.accountNumber,
+    amount: String(tx.amount),
+    amountFormatted: formatCurrency(
+      tx.amount,
+      tx.currency,
+      config.banking.minorUnits
+    ),
+    currency: tx.currency,
+    transactionReference: tx.reference,
+    paymentMethod: 'Paystack',
+    paymentChannel: tx.metadata?.channel || null,
+    transactionDate: tx.createdAt,
+    status: 'SUCCESSFUL',
+  };
 }
 
 function toTransactionDetailDTO(tx, account) {
   const base = toTransactionDTO(tx, account);
+
   return {
     ...base,
     sender: tx.senderAccount
@@ -293,6 +346,7 @@ module.exports = {
   listTransactions,
   toTransactionDTO,
   getOwnedTransaction,
+  getFundingReceipt,
   toTransactionDetailDTO,
   assertOwnsAccount,
 };

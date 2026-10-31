@@ -12,9 +12,9 @@
     "seed": "sequelize-cli db:seed:all",
     "seed:undo": "sequelize-cli db:seed:undo:all",
     "db:reset": "sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
-    "test": "cross-env NODE_ENV=test BCRYPT_ROUNDS=4 jest --runInBand --forceExit",
-    "test:watch": "cross-env NODE_ENV=test BCRYPT_ROUNDS=4 jest --runInBand --watch",
-    "test:verbose": "cross-env NODE_ENV=test BCRYPT_ROUNDS=4 jest --runInBand --forceExit --verbose",
+    "test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=.env.test BCRYPT_ROUNDS=4 node -r dotenv/config ./node_modules/jest/bin/jest.js --runInBand --forceExit",
+    "test:watch": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=.env.test BCRYPT_ROUNDS=4 node -r dotenv/config ./node_modules/jest/bin/jest.js --runInBand --watch",
+    "test:verbose": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=.env.test BCRYPT_ROUNDS=4 node -r dotenv/config ./node_modules/jest/bin/jest.js --runInBand --forceExit --verbose",
     "lint": "echo \"no linter configured\""
   },
   "keywords": [

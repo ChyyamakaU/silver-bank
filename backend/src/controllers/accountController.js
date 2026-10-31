@@ -1,3 +1,4 @@
+
 'use strict';
 
 const paystackService = require('../services/paystackService');
@@ -6,7 +7,10 @@ const asyncHandler = require('../utils/asyncHandler');
 
 const getMe = asyncHandler(async (req, res) => {
   const account = await accountService.requireAccountByUserId(req.user.id);
-  res.status(200).json({ success: true, data: accountService.toAccountDTO(account) });
+  res.status(200).json({
+    success: true,
+    data: accountService.toAccountDTO(account),
+  });
 });
 
 const getBalance = asyncHandler(async (req, res) => {
@@ -21,8 +25,14 @@ const getTransactions = asyncHandler(async (req, res) => {
 
 const getDashboard = asyncHandler(async (req, res) => {
   const account = await accountService.requireAccountByUserId(req.user.id);
-  const recent = await accountService.listTransactions(req.user.id, { page: 1, limit: 6 });
-  const notifications = buildNotifications(accountService.toAccountDTO(account), recent.items);
+  const recent = await accountService.listTransactions(req.user.id, {
+    page: 1,
+    limit: 6,
+  });
+  const notifications = buildNotifications(
+    accountService.toAccountDTO(account),
+    recent.items
+  );
 
   res.status(200).json({
     success: true,
@@ -36,18 +46,21 @@ const getDashboard = asyncHandler(async (req, res) => {
 
 function buildNotifications(account, recentTransactions) {
   const notifications = [];
+
   if (account.status !== 'ACTIVE') {
     notifications.push({
       type: 'warning',
       message: `Your account is currently ${account.status.toLowerCase()}. Some operations are unavailable.`,
     });
   }
+
   if (recentTransactions.length === 0) {
     notifications.push({
       type: 'info',
       message: 'Welcome to Silver Bank. Your new account is ready and your balance starts at NGN 0.00.',
     });
   }
+
   return notifications;
 }
 
@@ -57,8 +70,28 @@ const initializeFunding = asyncHandler(async (req, res) => {
 });
 
 const verifyFunding = asyncHandler(async (req, res) => {
-  const data = await paystackService.verifyFunding(req.user, req.params.reference);
+  const data = await paystackService.verifyFunding(
+    req.user,
+    req.params.reference
+  );
   res.status(200).json({ success: true, data });
 });
 
-module.exports = { getMe, getBalance, getTransactions, getDashboard, initializeFunding, verifyFunding };
+const getFundingReceipt = asyncHandler(async (req, res) => {
+  const data = await accountService.getFundingReceipt(
+    req.user,
+    req.params.reference
+  );
+
+  res.status(200).json({ success: true, data });
+});
+
+module.exports = {
+  getMe,
+  getBalance,
+  getTransactions,
+  getDashboard,
+  initializeFunding,
+  verifyFunding,
+  getFundingReceipt,
+};
