@@ -10,6 +10,12 @@ async function start() {
   try {
     await sequelize.authenticate();
     logger.info('Database connection established');
+    await sequelize.query(`
+  ALTER TYPE "enum_transactions_type"
+  ADD VALUE IF NOT EXISTS 'FUNDING';
+`);
+    logger.info('FUNDING transaction type is available');
+
   } catch (err) {
     logger.error('Unable to connect to the database', { message: err.message });
     process.exit(1);
